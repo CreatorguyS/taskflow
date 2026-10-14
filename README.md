@@ -142,7 +142,7 @@ taskflow/
 
 ## API overview
 
-All endpoints start with `/api/v1`. Endpoints marked 🔒 need a login token in the header: `Authorization: Bearer <token>`. You get a token from signup or login.
+All endpoints start with `/api/v1`. Endpoints marked 🔒 need a login token in the header: `Authorization: Bearer <token>`. You get a token from signup or login. For full request and response examples, query parameters, and error schemas, see the [API Reference](docs/API.md).
 
 | Method | Endpoint | | Description |
 |--------|----------|---|-------------|
