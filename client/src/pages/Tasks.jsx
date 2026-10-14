@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../utils/api.js";
 import { useToast } from "../components/Shared/Toast.jsx";
-import Spinner from "../components/Shared/Spinner.jsx";
+import TaskSkeleton from "../components/Shared/TaskSkeleton.jsx";
 
 // ── Modal Component ───────────────────────
 const Modal = ({ open, onClose, title, children }) => {
@@ -188,7 +188,11 @@ const Tasks = () => {
 
       {/* ── Task List ───────────────────── */}
       {loading ? (
-        <div className="flex justify-center py-16"><Spinner size="md" /></div>
+        <div className="flex flex-col gap-2">
+          {[...Array(4)].map((_, i) => (
+            <TaskSkeleton key={i} />
+          ))}
+        </div>
       ) : tasks.length === 0 ? (
         <div className="text-center py-16">
           {!search && !filterPriority && !filterStatus ? (
