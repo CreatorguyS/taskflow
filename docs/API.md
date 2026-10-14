@@ -19,12 +19,42 @@ Authorization: Bearer <your_jwt_token>
 ```
 You receive this token in the response when calling `POST /auth/signup` or `POST /auth/login`.
 
+If the `Authorization` header is missing or the token is invalid/expired, the API rejects the request before reaching the route handler:
+- **Missing token (401 Unauthorized)**:
+  ```json
+  {
+    "success": false,
+    "message": "No token provided. Access denied."
+  }
+  ```
+- **Invalid or expired token (401 Unauthorized)**:
+  ```json
+  {
+    "success": false,
+    "message": "Invalid or expired token."
+  }
+  ```
+
 ### Error Format
 All errors return a consistent JSON response:
 ```json
 {
   "success": false,
   "message": "Human-readable error description"
+}
+```
+
+Validation errors also include an `errors` array with each failing rule (for example, when multiple signup rules fail):
+```json
+{
+  "success": false,
+  "message": "Name must be at least 2 characters.",
+  "errors": [
+    "Name must be at least 2 characters.",
+    "Provide a valid email.",
+    "Password must be at least 6 characters.",
+    "Password must contain at least one uppercase letter."
+  ]
 }
 ```
 
@@ -88,7 +118,8 @@ curl -X POST http://localhost:5000/api/v1/auth/signup \
     "bio": "",
     "avatar": "",
     "createdAt": "2026-10-14T10:00:00.000Z",
-    "updatedAt": "2026-10-14T10:00:00.000Z"
+    "updatedAt": "2026-10-14T10:00:00.000Z",
+    "__v": 0
   }
 }
 ```
@@ -96,11 +127,23 @@ curl -X POST http://localhost:5000/api/v1/auth/signup \
 #### Error Responses
 - **400 Bad Request** - Missing or invalid fields:
   ```json
-  { "success": false, "message": "Name must be at least 2 characters." }
+  {
+    "success": false,
+    "message": "Name must be at least 2 characters.",
+    "errors": [
+      "Name must be at least 2 characters.",
+      "Provide a valid email.",
+      "Password must be at least 6 characters.",
+      "Password must contain at least one uppercase letter."
+    ]
+  }
   ```
 - **400 Bad Request** - Duplicate email:
   ```json
-  { "success": false, "message": "An account with this email already exists." }
+  {
+    "success": false,
+    "message": "An account with this email already exists."
+  }
   ```
 
 ---
@@ -137,7 +180,8 @@ curl -X POST http://localhost:5000/api/v1/auth/login \
     "bio": "",
     "avatar": "",
     "createdAt": "2026-10-14T10:00:00.000Z",
-    "updatedAt": "2026-10-14T10:00:00.000Z"
+    "updatedAt": "2026-10-14T10:00:00.000Z",
+    "__v": 0
   }
 }
 ```
@@ -145,11 +189,17 @@ curl -X POST http://localhost:5000/api/v1/auth/login \
 #### Error Responses
 - **400 Bad Request** - Missing email or password:
   ```json
-  { "success": false, "message": "Email and password are required." }
+  {
+    "success": false,
+    "message": "Email and password are required."
+  }
   ```
 - **401 Unauthorized** - Invalid credentials:
   ```json
-  { "success": false, "message": "Invalid email or password." }
+  {
+    "success": false,
+    "message": "Invalid email or password."
+  }
   ```
 
 ---
@@ -171,14 +221,24 @@ curl -X POST http://localhost:5000/api/v1/auth/logout \
 ```json
 {
   "success": true,
-  "message": "Logged out successfully"
+  "message": "Logged out successfully."
 }
 ```
 
-#### Error Response
-- **401 Unauthorized** - Missing or expired token:
+#### Error Responses
+- **401 Unauthorized** - Missing token:
   ```json
-  { "success": false, "message": "Not authorized, token failed" }
+  {
+    "success": false,
+    "message": "No token provided. Access denied."
+  }
+  ```
+- **401 Unauthorized** - Invalid or expired token:
+  ```json
+  {
+    "success": false,
+    "message": "Invalid or expired token."
+  }
   ```
 
 ---
@@ -207,7 +267,8 @@ curl -X GET http://localhost:5000/api/v1/me \
     "bio": "Open source contributor",
     "avatar": "",
     "createdAt": "2026-10-14T10:00:00.000Z",
-    "updatedAt": "2026-10-14T10:05:00.000Z"
+    "updatedAt": "2026-10-14T10:05:00.000Z",
+    "__v": 0
   }
 }
 ```
@@ -250,7 +311,8 @@ curl -X PUT http://localhost:5000/api/v1/me \
     "bio": "Building with the MERN stack.",
     "avatar": "",
     "createdAt": "2026-10-14T10:00:00.000Z",
-    "updatedAt": "2026-10-14T10:10:00.000Z"
+    "updatedAt": "2026-10-14T10:10:00.000Z",
+    "__v": 0
   }
 }
 ```
@@ -258,11 +320,31 @@ curl -X PUT http://localhost:5000/api/v1/me \
 #### Error Responses
 - **400 Bad Request** - Invalid name:
   ```json
-  { "success": false, "message": "Name must be at least 2 characters." }
+  {
+    "success": false,
+    "message": "Name must be at least 2 characters."
+  }
+  ```
+- **400 Bad Request** - Missing current password when changing password:
+  ```json
+  {
+    "success": false,
+    "message": "Current password is required to change password."
+  }
   ```
 - **400 Bad Request** - Incorrect current password:
   ```json
-  { "success": false, "message": "Current password is incorrect." }
+  {
+    "success": false,
+    "message": "Current password is incorrect."
+  }
+  ```
+- **400 Bad Request** - New password too short:
+  ```json
+  {
+    "success": false,
+    "message": "New password must be at least 6 characters."
+  }
   ```
 
 ---
@@ -299,7 +381,8 @@ curl -X GET "http://localhost:5000/api/v1/tasks?status=in-progress&priority=high
       "status": "in-progress",
       "owner": "670c5b369a421ef8841a0101",
       "createdAt": "2026-10-14T10:15:00.000Z",
-      "updatedAt": "2026-10-14T10:15:00.000Z"
+      "updatedAt": "2026-10-14T10:15:00.000Z",
+      "__v": 0
     }
   ],
   "meta": {
@@ -350,7 +433,8 @@ curl -X POST http://localhost:5000/api/v1/tasks \
     "status": "todo",
     "owner": "670c5b369a421ef8841a0101",
     "createdAt": "2026-10-14T10:15:00.000Z",
-    "updatedAt": "2026-10-14T10:15:00.000Z"
+    "updatedAt": "2026-10-14T10:15:00.000Z",
+    "__v": 0
   }
 }
 ```
@@ -358,7 +442,10 @@ curl -X POST http://localhost:5000/api/v1/tasks \
 #### Error Response
 - **400 Bad Request** - Missing title:
   ```json
-  { "success": false, "message": "Title is required." }
+  {
+    "success": false,
+    "message": "Title is required."
+  }
   ```
 
 ---
@@ -388,7 +475,8 @@ curl -X GET http://localhost:5000/api/v1/tasks/670c5c189a421ef8841a0105 \
     "status": "todo",
     "owner": "670c5b369a421ef8841a0101",
     "createdAt": "2026-10-14T10:15:00.000Z",
-    "updatedAt": "2026-10-14T10:15:00.000Z"
+    "updatedAt": "2026-10-14T10:15:00.000Z",
+    "__v": 0
   }
 }
 ```
@@ -396,7 +484,10 @@ curl -X GET http://localhost:5000/api/v1/tasks/670c5c189a421ef8841a0105 \
 #### Error Response
 - **404 Not Found** - Non-existent or invalid ID:
   ```json
-  { "success": false, "message": "Task not found." }
+  {
+    "success": false,
+    "message": "Task not found."
+  }
   ```
 
 ---
@@ -435,7 +526,8 @@ curl -X PUT http://localhost:5000/api/v1/tasks/670c5c189a421ef8841a0105 \
     "status": "done",
     "owner": "670c5b369a421ef8841a0101",
     "createdAt": "2026-10-14T10:15:00.000Z",
-    "updatedAt": "2026-10-14T10:20:00.000Z"
+    "updatedAt": "2026-10-14T10:20:00.000Z",
+    "__v": 0
   }
 }
 ```
@@ -443,11 +535,17 @@ curl -X PUT http://localhost:5000/api/v1/tasks/670c5c189a421ef8841a0105 \
 #### Error Responses
 - **400 Bad Request** - Invalid enum value or empty title:
   ```json
-  { "success": false, "message": "Invalid status." }
+  {
+    "success": false,
+    "message": "Invalid status."
+  }
   ```
 - **404 Not Found** - Task ID not found:
   ```json
-  { "success": false, "message": "Task not found." }
+  {
+    "success": false,
+    "message": "Task not found."
+  }
   ```
 
 ---
@@ -476,5 +574,9 @@ curl -X DELETE http://localhost:5000/api/v1/tasks/670c5c189a421ef8841a0105 \
 #### Error Response
 - **404 Not Found** - Task ID not found:
   ```json
-  { "success": false, "message": "Task not found." }
+  {
+    "success": false,
+    "message": "Task not found."
+  }
   ```
+
