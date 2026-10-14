@@ -107,6 +107,7 @@ This starts both parts together:
 | `npm run dev:client` | Start only the app |
 | `npm run build` | Build the app for production (into `client/dist/`) |
 | `npm test` | Run the backend's automated tests |
+| `npm run seed` | Populate the database with a demo user and sample tasks |
 
 **Something not working?** The server prints a `❌` message explaining what's wrong, for example a missing setting or MongoDB not running.
 
