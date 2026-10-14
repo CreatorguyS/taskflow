@@ -24,6 +24,12 @@ const seed = async () => {
     process.exit(1);
   }
 
+  const isLocal = /^mongodb:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(uri);
+  if (!isLocal && !process.argv.includes("--allow-remote")) {
+    console.error("❌  MONGO_URI is not a local database. Run with --allow-remote if you really want to seed it.");
+    process.exit(1);
+  }
+
   try {
     console.log("⏳  Connecting to MongoDB...");
     await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
