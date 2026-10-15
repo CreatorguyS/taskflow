@@ -38,15 +38,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await api.get("/tasks?limit=50");
-        const tasks = data.tasks;
-        setStats({
-          total: tasks.length,
-          todo: tasks.filter((t) => t.status === "todo").length,
-          inProgress: tasks.filter((t) => t.status === "in-progress").length,
-          done: tasks.filter((t) => t.status === "done").length,
-        });
-        setRecentTasks(tasks.slice(0, 5));
+        const [statsRes, tasksRes] = await Promise.all([
+          api.get("/tasks/stats"),
+          api.get("/tasks?limit=5"),
+        ]);
+        setStats(statsRes.data.stats);
+        setRecentTasks(tasksRes.data.tasks);
       } catch (err) {
         console.error(err);
       } finally {

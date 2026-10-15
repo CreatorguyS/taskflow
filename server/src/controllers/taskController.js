@@ -139,4 +139,25 @@ const deleteTask = async (req, res) => {
   res.json({ success: true, message: "Task deleted." });
 };
 
-module.exports = { createTask, getTasks, getTask, updateTask, deleteTask };
+// ── GET /api/v1/tasks/stats ──────────────────
+const getTaskStats = async (req, res) => {
+  const owner = req.user._id;
+  const [total, todo, inProgress, done] = await Promise.all([
+    Task.countDocuments({ owner }),
+    Task.countDocuments({ owner, status: "todo" }),
+    Task.countDocuments({ owner, status: "in-progress" }),
+    Task.countDocuments({ owner, status: "done" }),
+  ]);
+
+  res.json({
+    success: true,
+    stats: {
+      total,
+      todo,
+      inProgress,
+      done,
+    },
+  });
+};
+
+module.exports = { createTask, getTasks, getTask, getTaskStats, updateTask, deleteTask };
