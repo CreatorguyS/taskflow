@@ -53,7 +53,8 @@ Validation errors also include an `errors` array with each failing rule (for exa
     "Name must be at least 2 characters.",
     "Provide a valid email.",
     "Password must be at least 6 characters.",
-    "Password must contain at least one uppercase letter."
+    "Password must contain at least one uppercase letter.",
+    "Password must contain at least one number."
   ]
 }
 ```
@@ -134,7 +135,8 @@ curl -X POST http://localhost:5000/api/v1/auth/signup \
       "Name must be at least 2 characters.",
       "Provide a valid email.",
       "Password must be at least 6 characters.",
-      "Password must contain at least one uppercase letter."
+      "Password must contain at least one uppercase letter.",
+      "Password must contain at least one number."
     ]
   }
   ```
@@ -533,7 +535,21 @@ curl -X PUT http://localhost:5000/api/v1/tasks/670c5c189a421ef8841a0105 \
 ```
 
 #### Error Responses
-- **400 Bad Request** - Invalid enum value or empty title:
+- **400 Bad Request** - Empty title:
+  ```json
+  {
+    "success": false,
+    "message": "Title cannot be empty."
+  }
+  ```
+- **400 Bad Request** - Invalid priority value:
+  ```json
+  {
+    "success": false,
+    "message": "Invalid priority."
+  }
+  ```
+- **400 Bad Request** - Invalid status value:
   ```json
   {
     "success": false,
